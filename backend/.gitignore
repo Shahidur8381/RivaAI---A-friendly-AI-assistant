@@ -1,8 +1,18 @@
 # Python virtual environments & bytecode
 .venv/
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Environment & secret files
 .env
 .env*
-!.env.example
+!.env.example
+
+# Credentials & secrets
+*.key
+*.pem
+credentials
+secrets
+

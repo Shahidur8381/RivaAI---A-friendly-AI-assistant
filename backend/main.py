@@ -177,6 +177,13 @@ async def lifespan(app: FastAPI):
     app.state.db_pool = _db_pool
     log.info("✓ Database pool ready")
 
+    # Initialize database schema if needed
+    try:
+        from database import init_db
+        await init_db()
+    except Exception as exc:
+        log.warning("⚠ DB schema check warning: %s", exc)
+
     # Warm up model
     try:
         t = time.perf_counter()

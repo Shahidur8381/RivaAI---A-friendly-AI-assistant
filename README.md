@@ -7,20 +7,76 @@ Riva AI is an intelligent conversational AI assistant built with FastAPI (Python
 ## ✨ Features
 
 - **Conversational AI Interface**: Interactive chat UI powered by Next.js and Tailwind CSS.
-- **Local LLM Inference**: Integrated with Ollama for running models (like Llama 3) locally.
+- **Local LLM Inference**: Integrated with Ollama for running models (like Llama 3) locally or in Docker.
 - **Robust Backend**: Built on FastAPI for high performance and async capabilities.
 - **Postgres Database**: Uses Neon Serverless Postgres with `asyncpg` for fast and scalable data storage.
 - **Authentication**: JWT-based secure authentication system with role-based access control (e.g., Admin Dashboard).
 - **Responsive Design**: Mobile-friendly, modern glassmorphism aesthetic.
+- **Docker Production Ready**: Containerized backend optimized for Linux ARM64 (Oracle Cloud VPS).
 
 ---
 
 ## 🛠 Technology Stack
 
-- **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS
-- **Backend**: FastAPI, Python, asyncpg, bcrypt, PyJWT
-- **Database**: Neon (Postgres)
-- **AI/LLM**: Ollama (llama3.1:8b)
+- **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS (Deployed on Netlify)
+- **Backend**: FastAPI, Python 3.12, asyncpg, bcrypt, PyJWT, Docker (Deployed on Oracle Cloud ARM64 VPS)
+- **Database**: Neon Serverless Postgres
+- **AI/LLM**: Ollama (`llama3.1:8b`)
+
+---
+
+## 🐳 Production Docker Deployment (VPS ARM64)
+
+The backend is configured for deployment using Docker Compose on a Linux ARM64 / Ubuntu VPS.
+
+### 1. Prerequisites on VPS
+- Docker & Docker Compose installed.
+- An existing Ollama container running on the VPS with container name `ollama`.
+- Neon PostgreSQL connection URL.
+
+### 2. Environment Setup
+Copy `.env.production.example` to `.env` in the repository root on your VPS:
+
+```bash
+cp .env.production.example .env
+```
+
+Configure your VPS `.env` file with real credentials:
+```env
+OLLAMA_BASE_URL=http://ollama:11434
+OLLAMA_MODEL=llama3.1:8b
+OLLAMA_KEEP_ALIVE=30m
+OLLAMA_NUM_CTX=2048
+OLLAMA_NUM_PREDICT=-1
+OLLAMA_TEMPERATURE=0.7
+
+DATABASE_URL="postgresql://username:password@ep-example.us-east-2.aws.neon.tech/neondb?sslmode=require"
+JWT_SECRET="your_secure_random_jwt_secret"
+ALLOWED_ORIGINS="https://ai.shahidur.me"
+```
+
+### 3. Network Configuration
+Ensure your existing `ollama` container can communicate with `riva-api` over the dedicated Docker network (`riva-network`):
+
+```bash
+# Connect existing ollama container to riva-network
+docker network connect riva-network ollama
+```
+
+### 4. Build and Launch
+Deploy the production backend container:
+
+```bash
+docker compose -f compose.production.yml up -d --build
+```
+
+### 5. Verify Backend Health
+Check that the backend container is running and healthy:
+
+```bash
+docker compose -f compose.production.yml ps
+curl http://127.0.0.1:8000/api/health
+```
 
 ---
 
@@ -38,7 +94,6 @@ Follow these instructions to set up the project locally on your machine.
 
 ```bash
 git clone https://github.com/Shahidur8381/RivaAI---A-friendly-AI-assistant.git
-cd shahidurAI
 ```
 
 ### 2. Backend Setup
@@ -117,7 +172,7 @@ ollama run llama3.1:8b
 
 - **Rotate Database Credentials**: Never commit your database credentials. Use `.env`.
 - **JWT Secrets**: Always use cryptographically secure strings for `JWT_SECRET`.
-- **Git Ignore**: Ensure `.env` and `.env.local` files remain listed in `.gitignore`.
+- **Git Ignore**: Ensure `.env` and `.env.*` files remain listed in `.gitignore`.
 
 ---
 

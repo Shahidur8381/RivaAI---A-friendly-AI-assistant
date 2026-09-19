@@ -3,11 +3,13 @@
 .env.*
 !.env.example
 !.env.local.example
+!.env.production.example
 
 # Private keys & credentials
 *.key
 *.pem
 credentials
+secrets
 
 # Node/Frontend
 node_modules/
@@ -19,10 +21,15 @@ build/
 # Python/Backend
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .venv/
 venv/
 *.sqlite
 *.db
+
+# Docker
+.docker/
 
 # OS & Editor
 .DS_Store
@@ -35,3 +42,4 @@ venv/
 
 # Neon config
 .neon
+
