@@ -148,9 +148,9 @@ Set up your frontend environment variables:
 cp .env.local.example .env.local
 ```
 
-Ensure your `frontend/.env.local` points to the local backend:
+Ensure your `frontend/.env.local` points to your backend (or set `NEXT_PUBLIC_API_URL=https://api.ai.shahidur.me` on Netlify):
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
 Start the Next.js development server:

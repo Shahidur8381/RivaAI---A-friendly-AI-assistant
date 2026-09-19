@@ -15,7 +15,7 @@ export default function AuthModal({ onLogin }: { onLogin: (token: string) => voi
     setLoading(true);
 
     const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
     try {
       const res = await fetch(`${API_BASE}${endpoint}`, {
