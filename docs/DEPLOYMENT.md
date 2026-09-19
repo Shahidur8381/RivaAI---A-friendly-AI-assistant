@@ -20,7 +20,7 @@ A `netlify.toml` at the repository root locks in the correct settings:
 [build]
   base    = "frontend"
   command = "npm run build"
-  publish = "frontend/out"
+  publish = "out"
 ```
 
 ### Netlify environment variable
