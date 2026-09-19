@@ -37,7 +37,7 @@ Follow these instructions to set up the project locally on your machine.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/shahidurAI.git
+git clone https://github.com/Shahidur8381/RivaAI---A-friendly-AI-assistant.git
 cd shahidurAI
 ```
 
@@ -124,7 +124,8 @@ ollama run llama3.1:8b
 ## 👨‍💻 Author
 
 **MD. SHAHIDUR RAHMAN**  
-Portfolio: [SHAHIDUR.ME](https://shahidur.me)
+Portfolio: [SHAHIDUR.ME](https://shahidur.me)  
+Email: [shahidur8381@gmail.com](mailto:shahidur8381@gmail.com)
 
 ---
 *Feel free to star ⭐ this repository if you found it helpful!*
