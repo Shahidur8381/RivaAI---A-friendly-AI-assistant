@@ -101,7 +101,7 @@ DATABASE_URL=postgresql://<user>:<password>@<host>/<dbname>?sslmode=require
 JWT_SECRET=<generate-a-strong-random-secret>
 
 # Comma-separated allowed frontend origins
-ALLOWED_ORIGINS=https://ai.shahidur.me
+ALLOWED_ORIGINS=https://ai.shahidur.me,https://riva-ai.netlify.app
 ```
 
 > **Never commit the `.env` file.** It is listed in `.gitignore`.

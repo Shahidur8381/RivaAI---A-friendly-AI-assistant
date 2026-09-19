@@ -16,7 +16,7 @@ services:
       - OLLAMA_TEMPERATURE=${OLLAMA_TEMPERATURE:-0.7}
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://ai.shahidur.me}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://ai.shahidur.me,https://riva-ai.netlify.app}
     networks:
       - riva-network
     healthcheck:
