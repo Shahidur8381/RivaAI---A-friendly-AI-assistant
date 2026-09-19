@@ -361,3 +361,14 @@ body {
   animation: fadeIn 0.2s ease-out forwards;
 }
 
+/* Hide Netlify Drawer and Badges */
+netlify-drawer,
+netlify-deploy-preview,
+#netlify-drawer,
+#netlify-badge,
+.netlify-badge {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
