@@ -1,186 +1,217 @@
-# Riva AI — Full Stack Application 🚀
+# Riva AI
 
-Riva AI is an intelligent conversational AI assistant built with FastAPI (Python) on the backend and Next.js (TypeScript) on the frontend. It is powered by Neon Lakebase Postgres and local Ollama inference, providing a seamless and highly responsive chat experience.
-
----
-
-## ✨ Features
-
-- **Conversational AI Interface**: Interactive chat UI powered by Next.js and Tailwind CSS.
-- **Local LLM Inference**: Integrated with Ollama for running models (like Llama 3) locally or in Docker.
-- **Robust Backend**: Built on FastAPI for high performance and async capabilities.
-- **Postgres Database**: Uses Neon Serverless Postgres with `asyncpg` for fast and scalable data storage.
-- **Authentication**: JWT-based secure authentication system with role-based access control (e.g., Admin Dashboard).
-- **Responsive Design**: Mobile-friendly, modern glassmorphism aesthetic.
-- **Docker Production Ready**: Containerized backend optimized for Linux ARM64 (Oracle Cloud VPS).
+A full-stack AI assistant built with FastAPI, Next.js, and Ollama — deployed to a self-managed VPS.
 
 ---
 
-## 🛠 Technology Stack
+## Overview
 
-- **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS (Deployed on Netlify)
-- **Backend**: FastAPI, Python 3.12, asyncpg, bcrypt, PyJWT, Docker (Deployed on Oracle Cloud ARM64 VPS)
-- **Database**: Neon Serverless Postgres
-- **AI/LLM**: Ollama (`llama3.1:8b`)
+Riva AI is a conversational assistant built as a production-style application. Users can chat with a locally-run Llama 3.1 model in three distinct interaction modes, with persistent chat history, account management, and an admin interface. Guest access is available without requiring login.
 
----
-
-## 🐳 Production Docker Deployment (VPS ARM64)
-
-The backend is configured for deployment using Docker Compose on a Linux ARM64 / Ubuntu VPS.
-
-### 1. Prerequisites on VPS
-- Docker & Docker Compose installed.
-- An existing Ollama container running on the VPS with container name `ollama`.
-- Neon PostgreSQL connection URL.
-
-### 2. Environment Setup
-Copy `.env.production.example` to `.env` in the repository root on your VPS:
-
-```bash
-cp .env.production.example .env
-```
-
-Configure your VPS `.env` file with real credentials:
-```env
-OLLAMA_BASE_URL=http://ollama:11434
-OLLAMA_MODEL=llama3.1:8b
-OLLAMA_KEEP_ALIVE=30m
-OLLAMA_NUM_CTX=2048
-OLLAMA_NUM_PREDICT=-1
-OLLAMA_TEMPERATURE=0.7
-
-DATABASE_URL="postgresql://username:password@ep-example.us-east-2.aws.neon.tech/neondb?sslmode=require"
-JWT_SECRET="your_secure_random_jwt_secret"
-ALLOWED_ORIGINS="https://ai.shahidur.me"
-```
-
-### 3. Network Configuration
-Ensure your existing `ollama` container can communicate with `riva-api` over the dedicated Docker network (`riva-network`):
-
-```bash
-# Connect existing ollama container to riva-network
-docker network connect riva-network ollama
-```
-
-### 4. Build and Launch
-Deploy the production backend container:
-
-```bash
-docker compose -f compose.production.yml up -d --build
-```
-
-### 5. Verify Backend Health
-Check that the backend container is running and healthy:
-
-```bash
-docker compose -f compose.production.yml ps
-curl http://127.0.0.1:8000/api/health
-```
+The backend is deployed and accessible at **[https://api.ai.shahidur.me](https://api.ai.shahidur.me)**.
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## Features
 
-Follow these instructions to set up the project locally on your machine.
+| Feature | Description |
+|---|---|
+| **Three chat modes** | Friendly, Casual, and Study — each uses a distinct system prompt |
+| **Streaming responses** | Server-Sent Events (SSE) stream tokens to the UI as they are generated |
+| **Guest access** | Unauthenticated users can chat without creating an account (no history persisted) |
+| **Authentication** | JWT-based login and registration |
+| **Persistent chat history** | Authenticated sessions store messages in PostgreSQL |
+| **Chat management** | Create, rename, delete, and search chats from the sidebar |
+| **AI-generated chat titles** | After the first response, the backend generates a short title using the model |
+| **Admin dashboard** | View user stats, enable/disable/delete accounts, toggle maintenance mode |
+| **Maintenance mode** | Controlled via database flag; admin can flip it from the dashboard |
+| **Responsive UI** | Mobile-friendly layout with collapsible sidebar |
 
-### Prerequisites
-- Node.js (v18+)
-- Python (3.9+)
-- [Ollama](https://ollama.com/) (running locally)
-- PostgreSQL database (or [Neon](https://neon.tech/) account)
+---
 
-### 1. Clone the Repository
+## Architecture
+
+```mermaid
+flowchart LR
+    U["User Browser"]
+    F["Next.js Frontend"]
+    C["Caddy — HTTPS Reverse Proxy"]
+    B["FastAPI Backend (riva-api)"]
+    O["Ollama Container"]
+    M["Llama 3.1 8B"]
+    D["Neon PostgreSQL"]
+
+    U --> F
+    F --> C
+    C --> B
+    B --> O
+    O --> M
+    B --> D
+```
+
+- The frontend communicates with the backend through a Caddy reverse proxy that handles HTTPS/TLS.
+- The backend and Ollama container are connected through a dedicated Docker network (`riva-network`). Ollama is not publicly exposed.
+- PostgreSQL is provided by Neon's serverless platform and accessed over the internet using SSL.
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS v4 |
+| Backend | FastAPI, Python 3.12, Uvicorn |
+| AI Runtime | Ollama — `llama3.1:8b` |
+| Database | Neon Serverless PostgreSQL via `asyncpg` |
+| Auth | PyJWT, bcrypt |
+| HTTP Client | httpx (async, connection-pooled) |
+| Containerization | Docker, Docker Compose |
+| Reverse Proxy | Caddy |
+| VPS | Oracle Cloud — Ubuntu ARM64 |
+
+---
+
+## Engineering Highlights
+
+- **Async throughout**: FastAPI with `asyncpg` connection pooling and `httpx` async client — no blocking I/O.
+- **SSE streaming**: The backend streams Ollama token output to the frontend in real time using Server-Sent Events. A background `asyncio.Task` saves the completed response to the database after streaming, so the client connection does not block the write.
+- **Reusable Ollama client**: A single `httpx.AsyncClient` instance is created at application startup and shared across all requests, with configured connection limits and keep-alive settings.
+- **Model warm-up**: On startup, the backend sends a minimal request to Ollama to load the model into memory before serving user traffic.
+- **Database schema initialization**: `init_db()` runs at application startup using `CREATE TABLE IF NOT EXISTS` statements, so the schema is always consistent without an external migration tool.
+- **JWT role-based access**: Tokens carry a `role` claim. Admin endpoints verify both the JWT claim and the database `is_admin` flag (defense in depth).
+- **Isolated Docker networking**: The `riva-api` container communicates with Ollama through a named Docker network. The API port is bound to `127.0.0.1` only and is not reachable directly from the internet.
+- **ARM64 deployment**: The Docker image uses `python:3.12-slim`, which supports Linux ARM64/aarch64 natively.
+- **Environment-based configuration**: All runtime settings (database URL, JWT secret, Ollama parameters, CORS origins) are provided through environment variables. No credentials are hardcoded.
+
+---
+
+## Project Structure
+
+```
+├── backend/
+│   ├── main.py              # FastAPI application, routes, lifespan, streaming
+│   ├── database.py          # asyncpg pool, schema initialization
+│   ├── auth.py              # JWT creation, verification, role dependencies
+│   ├── requirements.txt     # Python runtime dependencies
+│   ├── Dockerfile           # Production image (python:3.12-slim, ARM64-compatible)
+│   └── .env.example         # Environment variable template
+│
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx         # Landing page
+│   │   ├── chat/            # Main chat interface
+│   │   ├── admin/           # Admin dashboard
+│   │   ├── login/           # Login page
+│   │   └── signup/          # Signup page
+│   ├── components/
+│   │   ├── chat/            # ChatWindow, Sidebar, MessageList, ChatComposer, etc.
+│   │   └── ui/              # Navbar, SuccessTransition
+│   ├── lib/
+│   │   ├── api.ts           # All backend API calls and SSE stream handling
+│   │   └── types.ts         # Shared TypeScript types
+│   └── .env.example         # Frontend environment variable template
+│
+├── compose.production.yml   # Docker Compose for production deployment
+├── .env.production.example  # Production environment variable template
+└── docs/
+    ├── ARCHITECTURE.md
+    ├── DEPLOYMENT.md
+    └── SECURITY.md
+```
+
+---
+
+## Local Development
+
+### 1. Clone
 
 ```bash
 git clone https://github.com/Shahidur8381/RivaAI---A-friendly-AI-assistant.git
 ```
 
-### 2. Backend Setup
-
-Navigate to the `backend/` directory, set up your virtual environment, and install dependencies:
+### 2. Backend
 
 ```bash
 cd backend
 python -m venv .venv
 
-# On Windows:
+# Windows
 .venv\Scripts\Activate.ps1
-# On Linux/macOS:
+# Linux / macOS
 source .venv/bin/activate
 
 pip install -r requirements.txt
-```
-
-Set up your environment variables:
-
-```bash
 cp .env.example .env
 ```
 
-Ensure your `backend/.env` is configured correctly:
+Edit `backend/.env`:
+
 ```env
 OLLAMA_BASE_URL=http://127.0.0.1:11434
 OLLAMA_MODEL=llama3.1:8b
-DATABASE_URL="postgresql://<user>:<password>@<host>/<dbname>?sslmode=require"
-JWT_SECRET="generate_a_strong_secret_key"
-ALLOWED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000"
+DATABASE_URL=postgresql://<user>:<password>@<host>/<dbname>?sslmode=require
+JWT_SECRET=<strong-random-secret>
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
-Start the FastAPI backend server:
+Start the backend:
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-### 3. Frontend Setup
-
-Open a new terminal, navigate to the `frontend/` directory, and install the dependencies:
+### 3. Frontend
 
 ```bash
 cd frontend
 npm install
+cp .env.example .env.local
 ```
 
-Set up your frontend environment variables:
+Edit `frontend/.env.local`:
 
-```bash
-cp .env.local.example .env.local
-```
-
-Ensure your `frontend/.env.local` points to your backend (or set `NEXT_PUBLIC_API_URL=https://api.ai.shahidur.me` on Netlify):
 ```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 ```
 
-Start the Next.js development server:
+Start the frontend:
 
 ```bash
 npm run dev
 ```
 
-### 4. Running Ollama
+### 4. Ollama
 
-Make sure Ollama is running in the background and that you have pulled the necessary model:
 ```bash
-ollama run llama3.1:8b
+ollama pull llama3.1:8b
+ollama serve
 ```
 
 ---
 
-## 🔒 Security Best Practices
+## Production Deployment
 
-- **Rotate Database Credentials**: Never commit your database credentials. Use `.env`.
-- **JWT Secrets**: Always use cryptographically secure strings for `JWT_SECRET`.
-- **Git Ignore**: Ensure `.env` and `.env.*` files remain listed in `.gitignore`.
+The backend is containerized and deployed using Docker Compose on an Oracle Cloud ARM64 VPS. Caddy handles HTTPS termination and proxies requests to the container. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full deployment guide.
 
 ---
 
-## 👨‍💻 Author
+## Security
 
-**MD. SHAHIDUR RAHMAN**  
-Portfolio: [SHAHIDUR.ME](https://shahidur.me)  
-Email: [shahidur8381@gmail.com](mailto:shahidur8381@gmail.com)
+Secrets are managed through environment variables and are never committed. The backend is not directly reachable from the internet — it is proxied through Caddy and bound to localhost. Ollama is accessible only within the internal Docker network. See [docs/SECURITY.md](docs/SECURITY.md) for details.
 
 ---
-*Feel free to star ⭐ this repository if you found it helpful!*
+
+## Project Status
+
+- ✅ Backend deployed at `api.ai.shahidur.me`
+- ✅ Production Docker configuration in repository
+- ✅ Frontend codebase configured for Netlify deployment
+- 🔧 Active development
+
+---
+
+## Author
+
+**MD. Shahidur Rahman**  
+Portfolio: [shahidur.me](https://shahidur.me)  
+GitHub: [@Shahidur8381](https://github.com/Shahidur8381)
