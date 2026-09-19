@@ -36,6 +36,9 @@ export default function Sidebar({
   const [renamingId, setRenamingId] = useState<number | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [activeOptionsId, setActiveOptionsId] = useState<number | null>(null);
+  const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLongPress = useRef(false);
 
   useEffect(() => {
     if (token) loadChats();
@@ -123,6 +126,37 @@ export default function Sidebar({
       setRenamingId(null);
     }
   };
+
+  const handleTouchStart = (chatId: number) => {
+    isLongPress.current = false;
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      isLongPress.current = true;
+      setActiveOptionsId(chatId);
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+      }
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+  };
+
+  const handleTouchMove = () => {
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+  };
+
+  // Close options when clicking elsewhere
+  useEffect(() => {
+    const handleClick = () => {
+      if (activeOptionsId !== null && !isLongPress.current) {
+        setActiveOptionsId(null);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [activeOptionsId]);
 
   const maxChats = 100;
   const isAtLimit = chats.length >= maxChats;
@@ -244,11 +278,23 @@ export default function Sidebar({
                   </div>
                 ) : (
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      if (isLongPress.current) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        isLongPress.current = false;
+                        return;
+                      }
                       onSelectChat(chat.id);
                       if (window.innerWidth < 768) onToggle();
                     }}
-                    className="flex-1 text-left px-3 py-2 text-sm truncate"
+                    onTouchStart={() => handleTouchStart(chat.id)}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchMove={handleTouchMove}
+                    onContextMenu={(e) => {
+                      if (window.innerWidth < 768) e.preventDefault();
+                    }}
+                    className="flex-1 text-left px-3 py-2 text-sm truncate select-none"
                   >
                     <span className={`block truncate ${
                       currentChatId === chat.id
@@ -261,7 +307,7 @@ export default function Sidebar({
                 )}
 
                 <div className={`flex items-center flex-shrink-0 transition-opacity ${
-                  renamingId === chat.id ? "hidden" : "opacity-0 group-hover:opacity-100"
+                  renamingId === chat.id ? "hidden" : activeOptionsId === chat.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                 }`}>
                   {/* Edit button */}
                   <button
