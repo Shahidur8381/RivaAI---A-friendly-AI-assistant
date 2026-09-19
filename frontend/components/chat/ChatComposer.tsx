@@ -26,6 +26,17 @@ export default function ChatComposer({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isModeOpen, setIsModeOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check mobile device for keyboard behavior
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -48,6 +59,10 @@ export default function ChatComposer({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
+      if (isMobile) {
+        // On mobile, let Enter natively insert a new line
+        return;
+      }
       e.preventDefault();
       if (value.trim() && !isStreaming) {
         onSend();
@@ -78,7 +93,7 @@ export default function ChatComposer({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask me anything..."
-          className="flex-1 max-h-[200px] min-h-[36px] bg-transparent text-white placeholder-violet-300/40 resize-none py-1.5 px-3 focus:outline-none focus:ring-0 !outline-none text-[0.9375rem] leading-relaxed no-scrollbar"
+          className="flex-1 min-w-0 max-h-[200px] min-h-[36px] w-full bg-transparent text-white placeholder-violet-300/40 resize-none py-1.5 px-2 sm:px-3 focus:outline-none focus:ring-0 !outline-none text-[0.9375rem] leading-relaxed no-scrollbar"
           style={{ 
             outline: "none", 
             boxShadow: "none",
