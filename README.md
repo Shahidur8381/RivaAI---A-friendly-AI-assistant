@@ -191,7 +191,9 @@ ollama serve
 
 ## Production Deployment
 
-The backend is containerized and deployed using Docker Compose on an Oracle Cloud ARM64 VPS. Caddy handles HTTPS termination and proxies requests to the container. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full deployment guide.
+The backend is containerized and deployed using Docker Compose on an Oracle Cloud ARM64 VPS. Caddy handles HTTPS termination and proxies requests to the container.
+
+The frontend is deployed as a static export on Netlify. `netlify.toml` in the repository root sets the correct build command and publish directory (`frontend/out`). See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full guide.
 
 ---
 
@@ -205,7 +207,7 @@ Secrets are managed through environment variables and are never committed. The b
 
 - ✅ Backend deployed at `api.ai.shahidur.me`
 - ✅ Production Docker configuration in repository
-- ✅ Frontend codebase configured for Netlify deployment
+- ✅ Frontend configured for Netlify static export deployment
 - 🔧 Active development
 
 ---

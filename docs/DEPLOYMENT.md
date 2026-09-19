@@ -4,6 +4,39 @@ Production deployment guide for the Riva AI backend on an Oracle Cloud ARM64 Ubu
 
 ---
 
+## Frontend Deployment (Netlify)
+
+The Next.js frontend is deployed as a **static export** on Netlify.
+
+### Why static export
+
+Every page and component in the frontend uses `"use client"` with no server-side features (`next/headers`, server actions, route handlers, or API routes). `output: "export"` in `next.config.ts` instructs Next.js to emit a plain HTML/CSS/JS bundle to `frontend/out/`, which Netlify serves directly without requiring any server runtime.
+
+### Build settings
+
+A `netlify.toml` at the repository root locks in the correct settings:
+
+```toml
+[build]
+  base    = "frontend"
+  command = "npm run build"
+  publish = "frontend/out"
+```
+
+### Netlify environment variable
+
+Set in the Netlify dashboard under **Site settings → Environment variables**:
+
+```env
+NEXT_PUBLIC_API_URL=https://api.ai.shahidur.me
+```
+
+### Routing
+
+`trailingSlash: true` is set in `next.config.ts`. This ensures each route is exported as `route/index.html` rather than `route.html`, which is required for correct Netlify path resolution.
+
+---
+
 ## Infrastructure
 
 | Component | Details |
