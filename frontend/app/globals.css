@@ -1,0 +1,363 @@
+@import "tailwindcss";
+
+/* ============================================
+   Riva AI — Dark Violet Design System
+   ============================================ */
+:root {
+  --bg-base: #070511;
+  --bg-surface: rgba(255, 255, 255, 0.03);
+  --bg-surface-hover: rgba(255, 255, 255, 0.06);
+  --bg-elevated: rgba(139, 92, 246, 0.06);
+  --border-subtle: rgba(139, 92, 246, 0.12);
+  --border-medium: rgba(139, 92, 246, 0.2);
+  --text-primary: #f5f3ff;
+  --text-secondary: #a78bfa;
+  --text-muted: #8b849f;
+  --violet-400: #a78bfa;
+  --violet-500: #8b5cf6;
+  --violet-600: #7c3aed;
+  --violet-700: #6d28d9;
+  --violet-900: #2e1065;
+  --font-inter: "Inter", sans-serif;
+}
+
+/* ============================================
+   Base
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   Background — Subtle ambient violet orbs
+   ============================================ */
+.riva-bg {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-base);
+  z-index: 0;
+  overflow: hidden;
+}
+
+.riva-bg::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 55%;
+  height: 55%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(109, 40, 217, 0.15) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.riva-bg::after {
+  content: "";
+  position: absolute;
+  bottom: -15%;
+  right: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(99, 102, 241, 0.08) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================
+   Glass surfaces
+   ============================================ */
+.glass {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-medium {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-medium);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 12px 2px rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 22px 6px rgba(139, 92, 246, 0.35); }
+}
+
+@keyframes bounce-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes ripple-expand {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(80);
+    opacity: 0;
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.35s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ============================================
+   Prose / Markdown (Dark)
+   ============================================ */
+.riva-prose {
+  line-height: 1.75;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+.riva-prose p { margin: 0 0 0.75rem 0; }
+.riva-prose p:last-child { margin-bottom: 0; }
+
+.riva-prose ul,
+.riva-prose ol {
+  padding-left: 1.4rem;
+  margin: 0.5rem 0 0.75rem 0;
+}
+.riva-prose li { margin-bottom: 0.25rem; }
+
+.riva-prose strong { color: #e2e8f0; font-weight: 600; }
+.riva-prose em { color: #cbd5e1; }
+
+.riva-prose code {
+  font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", monospace;
+  font-size: 0.85em;
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.riva-prose pre {
+  background: #0f0c1e;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.riva-prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.riva-prose h1,
+.riva-prose h2,
+.riva-prose h3 {
+  color: #f1f5f9;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.riva-prose blockquote {
+  border-left: 3px solid var(--violet-500);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.riva-prose a {
+  color: var(--violet-400);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ============================================
+   Focus
+   ============================================ */
+:focus-visible {
+  outline: 2px solid var(--violet-500);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Streaming cursor
+   ============================================ */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.streaming-cursor::after {
+  content: "▋";
+  color: var(--violet-400);
+  animation: cursor-blink 0.8s step-end infinite;
+  margin-left: 1px;
+  font-size: 0.9em;
+}
+
+/* ============================================
+   Success ripple overlay
+   ============================================ */
+.ripple-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.ripple-circle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--violet-600) 0%, var(--violet-900) 60%, var(--bg-base) 100%);
+  transform: translate(-50%, 50%) scale(0);
+  animation: ripple-expand 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ============================================
+   Sidebar — ChatGPT-style collapsible panel
+   ============================================ */
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  background: rgba(11, 7, 24, 0.92);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease;
+  will-change: transform, width;
+  overflow: hidden;
+}
+
+/* Mobile: overlay from left */
+@media (max-width: 767px) {
+  .sidebar-panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: 280px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+  .sidebar-panel.sidebar-closed {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sidebar-panel.sidebar-open {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Desktop: inline, collapsible with width transition */
+@media (min-width: 768px) {
+  .sidebar-panel {
+    position: relative;
+    flex-shrink: 0;
+    box-shadow: none;
+  }
+  .sidebar-panel.sidebar-open {
+    width: 260px;
+    opacity: 1;
+  }
+  .sidebar-panel.sidebar-closed {
+    width: 0;
+    opacity: 0;
+    border-right: none;
+    pointer-events: none;
+  }
+}
+
+.sidebar-backdrop {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+

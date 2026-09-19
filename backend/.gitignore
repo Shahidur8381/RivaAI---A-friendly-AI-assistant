@@ -1,0 +1,8 @@
+# Python virtual environments & bytecode
+.venv/
+__pycache__/
+
+# Environment & secret files
+.env
+.env*
+!.env.example
