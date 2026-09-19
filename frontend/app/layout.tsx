@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     description: "Come here whenever you need me",
     type: "website",
   },
+  icons: {
+    icon: "/RIVA.png",
+  },
 };
 
 export const viewport: Viewport = {
